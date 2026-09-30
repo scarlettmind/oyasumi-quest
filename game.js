@@ -55,9 +55,10 @@ function next(){
  else{state.targetX=questions[state.step].x;state.mode='walk';$('caption').textContent='次の場面へ、てくてく。';$('choices').innerHTML='<div class="waiting">次の場面へ…</div>';}
  $('clock').textContent=clockText();
 }
-function startRecovery(){state.mode='recover';state.timer=0;state.dimTarget=.68;Sound.playVoice(`hp${state.hp}`);$('phase').textContent='おやすみ';$('question-label').textContent='今夜の回復HP';$('question').textContent=`${state.hp} / 100 HP`;$('description').textContent='今夜も、おつかれさまでした。';$('effect').textContent=`合計 ${state.hp} HP`;$('effect').dataset.kind='total';$('choices').innerHTML='<div class="waiting">おやすみなさい…</div>';hud();}
+function startRecovery(){$('honesty').textContent='今日も一日、おつかれさまでした。';state.mode='recover';state.timer=0;state.dimTarget=.68;Sound.playVoice(`hp${state.hp}`);$('phase').textContent='おやすみ';$('question-label').textContent='今夜の回復HP';$('question').textContent=`${state.hp} / 100 HP`;$('description').textContent='今夜も、おつかれさまでした。';$('effect').textContent=`合計 ${state.hp} HP`;$('effect').dataset.kind='total';$('choices').innerHTML='<div class="waiting">おやすみなさい…</div>';hud();}
 function startOutro(){state.mode='outro';state.timer=0;$('effect').textContent='';$('outro').hidden=false;Sound.hush();Sound.playVoice('goodnight');}
 function finish(){
+ $('honesty').textContent='できそうなことから、少しずつ。';
  $('outro').hidden=true;state.done=true;state.mode='result';$('phase').textContent='結果発表';$('clock').textContent='07:00';$('caption').textContent=state.hp===100?'５つの習慣で、100 HP回復！':'今夜から、できそうなことをひとつ。';$('question').textContent='おつかれさまでした。';$('description').textContent='５つの睡眠習慣を振り返りました。';$('choices').innerHTML='<button class="choice" id="view-result">結果をもう一度見る</button><button class="choice" id="replay">もう一度あそぶ</button>';$('view-result').onclick=showResult;$('replay').onclick=reset;hud();showResult();
 }
 function showResult(){
