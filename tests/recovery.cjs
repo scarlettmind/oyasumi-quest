@@ -14,14 +14,14 @@ for(let mask=0;mask<32;mask++){
  for(let i=0;i<5;i++){
   until('question');const option=(mask>>i)&1;count+=option;run(`answer(${option})`);
   assert.equal(run('state.hp'),count*20,'Only correct choices contribute HP');assert.equal(els.hp.textContent,count*20);assert.throws(()=>run('answer(0)'));
-  assert.equal(els.effect.textContent,option?'+20 HP':'回復なし');assert.equal(audioEvents.filter(e=>e[0]==='answer').at(-1)[1],Boolean(option));
+  assert.equal(els.effect.textContent,option?'+20 HP':'');assert.equal(audioEvents.filter(e=>e[0]==='answer').at(-1)[1],Boolean(option));
   if(run('state.activeAction.id')==='phone'&&option===0){const before=run('state.minutes');for(let j=0;j<30;j++)tick();assert.ok(run('state.minutes')>before,'Phone advances clock');}
   if(run('state.activeAction.id')==='light'&&option===1){for(let j=0;j<30;j++)tick();assert.ok(run('state.dim')>.5,'Lights visibly dim');}
   if(run('state.activeAction.id')==='tv'&&option===0){for(let j=0;j<30;j++)tick();assert.equal(run('state.playerY'),326,'Sit on couch');assert.equal(run('state.tvOn'),true);}
  }
  until('recover');assert.equal(run('state.answers.length'),5);
  until('result');assert.equal(run('state.hp'),count*20);
- assert.deepEqual(audioEvents.filter(e=>e[0]==='voice').map(e=>e[1]),[`hp${count*20}`,'goodnight'],'Only one score voice and one ending voice');
+ assert.deepEqual(audioEvents.filter(e=>e[0]==='voice').map(e=>e[1]),[],'No narration anywhere in the game');
  assert.equal(audioEvents.filter(e=>e[0]==='answer').length,5);
  const html=els['dialog-content'].innerHTML;
  assert.equal((html.match(/<h3>/g)||[]).length,5-count,'Every and only flagged advice shown');
@@ -29,5 +29,5 @@ for(let mask=0;mask<32;mask++){
  assert.ok(!html.includes('あなたの回答：'),'Advice never repeats answers');
  for(let i=0;i<5;i++)assert.equal(html.includes('<h3>'+run(`questions[${i}].tipTitle`)+'</h3>'),!((mask>>i)&1));
 }
-run('reset()');until('question');assert.throws(()=>run('answer(2)'));run('state.paused=true');assert.throws(()=>run('answer(1)'));const x=run('state.playerX');run('update(3)');assert.equal(run('state.playerX'),x);run('reset()');assert.equal(run('state.answers.length'),0);assert.equal(run('state.hp'),0);assert.equal(run('state.dim'),0);assert.equal(els.outro.hidden,true);
-console.log('32 combinations passed. Wrong choices add 0; correct choices add 20 once. Every animation preserves score. All routes stay in bounds and finish. Advice, score voice, ending voice, duplicate guards and reset passed.');
+run('reset()');until('question');assert.throws(()=>run('answer(2)'));run('state.paused=true');assert.throws(()=>run('answer(1)'));const x=run('state.playerX');run('update(3)');assert.equal(run('state.playerX'),x);run('reset()');assert.equal(run('state.answers.length'),0);assert.equal(run('state.hp'),0);assert.equal(run('state.dim'),0);
+console.log('32 combinations passed. Wrong choices add 0; correct choices add 20 once. Every animation preserves score. All routes stay in bounds and finish. Advice, no narration, duplicate guards and reset passed.');

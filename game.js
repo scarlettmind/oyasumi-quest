@@ -23,7 +23,7 @@ new ResizeObserver(resize).observe(canvas);
 function closeDialog(){if($('overlay').open)$('overlay').close();state.paused=false;}
 function reset(){
  if($('overlay').open)$('overlay').close();
- Sound.reset();$('outro').hidden=true;$('outro').classList.remove('fade');
+ Sound.reset();
  state={mode:'enter',step:0,hp:0,answers:[],playerX:55,playerY:370,targetX:150,camera:0,timer:0,anim:0,paused:false,dim:0,dimTarget:0,done:false,activeAction:null,minutes:1320,tvOn:false,temperatureSet:false,facing:1,moving:true};
  $('effect').textContent='';$('time-passed').textContent='';$('clock').textContent='22:00';$('phase').textContent='おかえり';$('scene-label').textContent='あなたの部屋';$('caption').textContent='おかえりなさい。今日は、どんな夜にする？';$('question-label').textContent='今夜の冒険';$('question').textContent='まずは、お部屋へ。';$('description').textContent='睡眠を大切にする選択で、20 HPずつ回復。';$('choices').innerHTML='<div class="waiting">お部屋に入っています…</div>';$('honesty').textContent='いい答えより、いつもの答えを。';hud();
 }
@@ -43,10 +43,10 @@ function answer(index){
  state.answers.push({id:q.id,title:q.title,topic:q.topic,label:a.label,points:a.points,tipTitle:q.tipTitle,tip:q.tip,source:q.source});
  // Derive the total from the answer ledger, never from an animation or timer.
  state.hp=state.answers.reduce((sum,entry)=>sum+entry.points,0);state.mode='act';state.timer=0;
- $('effect').textContent=a.points===20?'+20 HP':'回復なし';$('effect').dataset.kind=a.points===20?'gain':'miss';Sound.answer(a.points===20);
+ $('effect').textContent=a.points===20?'+20 HP':'';$('effect').dataset.kind=a.points===20?'gain':'miss';Sound.answer(a.points===20);
  state.activeAction={id:q.id,index,startX:state.playerX,startMinutes:state.minutes,extraMinutes:index===0?(q.id==='phone'?30:q.id==='tv'?45:0):0};
  if(q.id==='light')state.dimTarget=index===1?.58:0;if(q.id==='temperature')state.temperatureSet=index===1;if(q.id==='tv')state.tvOn=index===0;
- $('caption').textContent=a.action;$('honesty').textContent=a.points===20?'20 HP 回復しました。':'この選択でのHP回復はありません。';document.querySelectorAll('[data-answer]').forEach(b=>{b.disabled=true;b.classList.toggle('selected',Number(b.dataset.answer)===index);});hud();return snapshot();
+ $('caption').textContent=a.action;$('honesty').textContent=a.points===20?'20 HP 回復しました。':'';document.querySelectorAll('[data-answer]').forEach(b=>{b.disabled=true;b.classList.toggle('selected',Number(b.dataset.answer)===index);});hud();return snapshot();
 }
 function actionDuration(){return state.activeAction?.id==='tv'&&state.activeAction.index===0?4.8:state.activeAction?.id==='phone'&&state.activeAction.index===0?4:2.8;}
 function next(){
@@ -55,11 +55,10 @@ function next(){
  else{state.targetX=questions[state.step].x;state.mode='walk';$('caption').textContent='次の場面へ、てくてく。';$('choices').innerHTML='<div class="waiting">次の場面へ…</div>';}
  $('clock').textContent=clockText();
 }
-function startRecovery(){$('honesty').textContent='今日も一日、おつかれさまでした。';state.mode='recover';state.timer=0;state.dimTarget=.68;Sound.playVoice(`hp${state.hp}`);$('phase').textContent='おやすみ';$('question-label').textContent='今夜の回復HP';$('question').textContent=`${state.hp} / 100 HP`;$('description').textContent='今夜も、おつかれさまでした。';$('effect').textContent=`合計 ${state.hp} HP`;$('effect').dataset.kind='total';$('choices').innerHTML='<div class="waiting">おやすみなさい…</div>';hud();}
-function startOutro(){state.mode='outro';state.timer=0;$('effect').textContent='';$('outro').hidden=false;Sound.hush();Sound.playVoice('goodnight');}
+function startRecovery(){$('honesty').textContent='今日も一日、おつかれさまでした。';state.mode='recover';state.timer=0;state.dimTarget=.68;$('phase').textContent='おやすみ';$('question-label').textContent='今夜の回復HP';$('question').textContent=`${state.hp} / 100 HP`;$('description').textContent='今夜も、おつかれさまでした。';$('effect').textContent=`合計 ${state.hp} HP`;$('effect').dataset.kind='total';$('choices').innerHTML='<div class="waiting">おやすみなさい…</div>';hud();}
 function finish(){
  $('honesty').textContent='できそうなことから、少しずつ。';
- $('outro').hidden=true;state.done=true;state.mode='result';$('phase').textContent='結果発表';$('clock').textContent='07:00';$('caption').textContent=state.hp===100?'５つの習慣で、100 HP回復！':'今夜から、できそうなことをひとつ。';$('question').textContent='おつかれさまでした。';$('description').textContent='５つの睡眠習慣を振り返りました。';$('choices').innerHTML='<button class="choice" id="view-result">結果をもう一度見る</button><button class="choice" id="replay">もう一度あそぶ</button>';$('view-result').onclick=showResult;$('replay').onclick=reset;hud();showResult();
+ $('effect').textContent='';state.done=true;state.mode='result';$('phase').textContent='結果発表';$('clock').textContent='07:00';$('caption').textContent=state.hp===100?'５つの習慣で、100 HP回復！':'今夜から、できそうなことをひとつ。';$('question').textContent='おつかれさまでした。';$('description').textContent='５つの睡眠習慣を振り返りました。';$('choices').innerHTML='<button class="choice" id="view-result">結果をもう一度見る</button><button class="choice" id="replay">もう一度あそぶ</button>';$('view-result').onclick=showResult;$('replay').onclick=reset;hud();showResult();
 }
 function showResult(){
  const tips=state.answers.filter(a=>a.points===0),perfect=tips.length===0;
@@ -83,9 +82,7 @@ function update(dt){
  }else if(state.mode==='climb'){state.timer+=dt;const p=clamp(state.timer/.9,0,1);state.playerX=535+15*p;state.playerY=370-73*p;state.moving=false;if(p===1){state.mode='sleep';state.timer=0;}}
  else if(state.mode==='sleep'){state.timer+=dt;if(state.timer>1.1)startRecovery();}
  else if(state.mode==='recover'){
-  state.timer+=dt;if(state.timer>3.8)startOutro();
- }else if(state.mode==='outro'){
-  state.timer+=dt;if(state.timer>5.5)$('outro').classList.add('fade');if(state.timer>7.2)finish();
+  state.timer+=dt;if(state.timer>.9)finish();
  }
  state.playerX=clamp(state.playerX,40,610);state.camera+=(clamp(state.playerX-180,0,360)-state.camera)*Math.min(1,dt*6);
 }
@@ -110,7 +107,7 @@ function draw(){
  else if(a?.id==='phone'){pose=a.index===0||t<1?2:'stand';}
  else if(a?.id==='tv'&&a.index===0){pose=3;height=63;bottom=top+326;}
  else if(a?.id==='tv'||a?.id==='temperature'&&a.index===1||a?.id==='light'&&a.index===1){pose=4;}
- else if(['sleep','recover','outro','result'].includes(state.mode)){pose=5;height=38;bottom=top+297;}
+ else if(['sleep','recover','result'].includes(state.mode)){pose=5;height=38;bottom=top+297;}
  sprite(pose,px,bottom,flip,height);
  if(a?.id==='phone'&&a.index===0){ctx.fillStyle='#b9dfff25';ctx.fillRect(px-23,bottom-68,49,54);ctx.fillStyle='#e0eeff';ctx.font='10px monospace';ctx.fillText('スクロール',px-24,bottom-86);ctx.fillStyle='#d2edff';ctx.fillRect(px+11,bottom-42,7,9);ctx.fillStyle='#6a98c9';ctx.fillRect(px+12,bottom-40+(Math.floor(state.anim*3)%3),5,2);}
  if(a?.id==='temperature'){ctx.font='12px "DotGothic16",sans-serif';ctx.fillStyle='#fff0d5';ctx.textAlign='center';ctx.fillText(a.index===1?'快適に調整':'そのまま',px,bottom-95);ctx.textAlign='left';}
@@ -120,8 +117,8 @@ function draw(){
 function loop(t){const dt=Math.min((t-last)/1000||0,.04);last=t;Sound.tick(state.step);update(dt);draw();requestAnimationFrame(loop);}
 function snapshot(){return {mode:state.mode,step:state.step,hp:state.hp,answers:state.answers,paused:state.paused,done:state.done,ready,minutes:state.minutes,dim:state.dim,activeAction:state.activeAction,playerX:state.playerX,playerY:state.playerY,camera:state.camera,moving:state.moving,soundEnabled:Sound.enabled};}
 $('restart').onclick=reset;
-$('sound').onclick=()=>Sound.toggle();Sound.label();$('skip-outro').onclick=()=>{Sound.stopVoice();finish();};
-$('info').onclick=()=>openDialog(`<div class="dialog-body"><h2 id="dialog-title">あそびかた</h2><p>部屋の５つの場面で、いつもの自分に近い答えを選んでください。選択に合わせて主人公が動きます。</p><p>睡眠を大切にする選択で20 HP回復。それ以外の選択は0 HPで、加点されません。合計は最大100 HPです。見直せる習慣には、それぞれのアドバイスが届きます。</p><p>HPはゲーム内のスコアで、実際の睡眠の質や回復量ではありません。同じ配点でも、各習慣の影響が同じという意味ではありません。</p><button id="close-info">ゲームに戻る</button><small>音声は合成音声です。音あり／音なしボタンで切り替えられます。<br>本作は非公式コンセプト。質問・助言は公開インタビューをもとにした改編です。柳沢氏ご本人・所属機関の監修や推薦ではありません。<br><a href="${HOTEL}" target="_blank" rel="noopener">参考：HOTEL REVIEW 753</a><br><a href="${NEUTRAL}" target="_blank" rel="noopener">参考：NEUTRALWORKS.</a><br><a href="https://wpi-iiis.tsukuba.ac.jp/japanese/research/member/detail/masashiyanagisawa/" target="_blank" rel="noopener">写真出典：筑波大学 IIIS</a><br><a href="https://airweave.jp/labo/sleep_diagnosis/light.shtml" target="_blank" rel="noopener">着想元：エアウィーヴ睡眠診断</a></small></div>`);
+$('sound').onclick=()=>Sound.toggle();Sound.label();
+$('info').onclick=()=>openDialog(`<div class="dialog-body"><h2 id="dialog-title">あそびかた</h2><p>部屋の５つの場面で、いつもの自分に近い答えを選んでください。選択に合わせて主人公が動きます。</p><p>睡眠を大切にする選択で20 HP回復。それ以外の選択は0 HPで、加点されません。合計は最大100 HPです。見直せる習慣には、それぞれのアドバイスが届きます。</p><p>HPはゲーム内のスコアで、実際の睡眠の質や回復量ではありません。同じ配点でも、各習慣の影響が同じという意味ではありません。</p><button id="close-info">ゲームに戻る</button><small>BGMと効果音は、音あり／音なしボタンで切り替えられます。<br>本作は非公式コンセプト。質問・助言は公開インタビューをもとにした改編です。柳沢氏ご本人・所属機関の監修や推薦ではありません。<br><a href="${HOTEL}" target="_blank" rel="noopener">参考：HOTEL REVIEW 753</a><br><a href="${NEUTRAL}" target="_blank" rel="noopener">参考：NEUTRALWORKS.</a><br><a href="https://wpi-iiis.tsukuba.ac.jp/japanese/research/member/detail/masashiyanagisawa/" target="_blank" rel="noopener">写真出典：筑波大学 IIIS</a><br><a href="https://airweave.jp/labo/sleep_diagnosis/light.shtml" target="_blank" rel="noopener">着想元：エアウィーヴ睡眠診断</a></small></div>`);
 $('dialog-content').addEventListener('click',e=>{if(e.target.id==='close-info')closeDialog();});
 $('overlay').addEventListener('cancel',e=>{e.preventDefault();closeDialog();});
 function assetsReady(){if([rooms,hero,actions].every(im=>im.complete&&im.naturalWidth)){ready=true;$('loading').style.display='none';}}

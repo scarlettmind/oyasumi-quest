@@ -30,12 +30,8 @@ Serve this directory with any static HTTP server, such as `python3 -m http.serve
 
 ## Sound
 
-Sound begins on the first answer gesture and can be muted with the 音あり / 音なし button. Original Web Audio chiptune music slows and softens as the game progresses. Correct answers play a recovery chime; other answers play a soft descending cue. The ending fades the music, announces the score, and plays a prerecorded goodnight message.
-
-Fixed Japanese voice files were generated locally with macOS Kyoko speech synthesis. They are synthetic narration, not Yanagisawa's voice or OpenAI TTS output. No API key or runtime speech generation is used. Audio assets are served from this repository.
-
-The ending logo comes from https://airweave.jp/assets/img/logo-1.png and retains its original rights. This remains an unofficial concept.
+Sound begins on the first answer gesture and can be muted with the 音あり / 音なし button. Original Web Audio background music slows and softens as the game progresses. Correct choices add 20 HP and play a recovery chime; wrong choices add 0 HP and play only a soft descending cue, without an error text overlay. There is no spoken narration or logo ending. After the short score summary, Yanagisawa’s photograph and the matching advice appear directly.
 
 ## Validation
 
-Run `node tests/recovery.cjs` for all 32 answer combinations, movement bounds, full advice matching, reset, and single-trigger score/voice behavior. Run `node tests/sound.cjs` for audio cues, mute, fade and reset.
+Run `node tests/recovery.cjs` for all 32 answer combinations, movement bounds, full advice matching, reset, and single-trigger score behavior and absence of narration. Run `node tests/sound.cjs` for audio cues, mute, fade and reset.
